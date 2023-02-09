@@ -1,0 +1,8 @@
+pydantic[email]
+fastapi
+peewee
+loguru
+psycopg2-binary
+aiohttp
+ujson
+types-ujson
