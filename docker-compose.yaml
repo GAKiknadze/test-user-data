@@ -1,0 +1,45 @@
+version: '3.9'
+services:
+  api:
+    container_name: user-api
+    build:
+      context: ./
+    image: user-api
+    depends_on:
+      - db
+    ports:
+      - ${API_PORT}:${API_PORT}
+    environment:
+      DB_URL: 'postgresql://${DB_USER}:${DB_PASS}@db:${DB_PORT}/${DB_NAME}'
+      HOST: ${API_HOST}
+      PORT: ${API_PORT}
+      DADATA_TOKEN: ${DADATA_TOKEN}
+    networks:
+      - backend
+  db:
+    image: postgres:latest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+    volumes: 
+      - db:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  backend:
+    driver: bridge
